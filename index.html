@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free SSH Servers - TCP 80/443 & UDP Port Beragam</title>
+    <style>
+        :root {
+            --primary: #1a237e;
+            --secondary: #2962ff;
+            --success: #00c853;
+            --warning: #ffab00;
+            --danger: #ff1744;
+            --dark: #0d1b2a;
+            --light: #f8f9fa;
+            --gray: #90a4ae;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark), #1b263b);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(26, 35, 126, 0.9);
+            border-radius: 15px;
+            border: 2px solid rgba(41, 98, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        h1 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 10px rgba(41, 98, 255, 0.3);
+        }
+        
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+        
+        /* TABS STYLING */
+        .tabs-container {
+            margin-bottom: 30px;
+        }
+        
+        .protocol-tabs {
+            display: flex;
+            background: rgba(26, 35, 126, 0.9);
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .protocol-tab {
+            flex: 1;
+            padding: 16px 24px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: var(--gray);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            min-width: 160px;
+        }
+        
+        .protocol-tab:hover {
+            background: rgba(41, 98, 255, 0.1);
+            color: var(--secondary);
+        }
+        
+        .protocol-tab.active {
+            background: var(--secondary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(41, 98, 255, 0.4);
+        }
+        
+        .location-tabs {
+            display: flex;
+            background: rgba(13, 27, 42, 0.9);
+            border-radius: 8px;
+            padding: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .location-tab {
+            padding: 12px 24px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: var(--gray);
+            font-size: 0.95rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .location-tab:hover {
+            background: rgba(41, 98, 255, 0.1);
+            color: var(--secondary);
+        }
+        
+        .location-tab.active {
+            background: rgba(41, 98, 255, 0.2);
+            color: var(--secondary);
+            border: 1px solid rgba(41, 98, 255, 0.4);
+        }
+        
+        /* CONTENT AREA */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .server-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .server-card {
+            background: linear-gradient(145deg, #1a237e, #283593);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(41, 98, 255, 0.2);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .server-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(41, 98, 255, 0.5);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .server-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary), #2979ff);
+        }
+        
+        .server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .server-title {
+            color: var(--secondary);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .server-badge {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .badge-tcp {
+            background: rgba(0, 200, 83, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(0, 200, 83, 0.4);
+        }
+        
+        .badge-udp {
+            background: rgba(156, 39, 176, 0.2);
+            color: #ce93d8;
+            border: 1px solid rgba(156, 39, 176, 0.4);
+        }
+        
+        .badge-sg {
+            background: rgba(41, 98, 255, 0.2);
+            color: var(--secondary);
+            border: 1px solid rgba(41, 98, 255, 0.4);
+        }
+        
+        .badge-id {
+            background: rgba(255, 171, 0, 0.2);
+            color: var(--warning);
+            border: 1px solid rgba(255, 171, 0, 0.4);
+        }
+        
+        .server-details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .detail-row {
+            display: flex;
+            align-items: center;
+            min-height: 40px;
+        }
+        
+        .detail-label {
+            width: 110px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        
+        .detail-value {
+            flex: 1;
+            color: white;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95rem;
+            word-break: break-all;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            min-height: 40px;
+        }
+        
+        .server-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .server-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .status-online {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .status-offline {
+            background: var(--danger);
+        }
+        
+        .status-text {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .server-expiry {
+            font-size: 0.85rem;
+            color: var(--warning);
+            font-weight: 500;
+        }
+        
+        .copy-btn {
+            background: linear-gradient(135deg, var(--secondary), #2979ff);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 20px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            letter-spacing: 0.5px;
+        }
+        
+        .copy-btn:hover {
+            background: linear-gradient(135deg, #2979ff, #1565c0);
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(41, 98, 255, 0.3);
+        }
+        
+        .copy-btn.success {
+            background: linear-gradient(135deg, var(--success), #00b248);
+        }
+        
+        /* STATS BAR */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(26, 35, 126, 0.9);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            border: 1px solid rgba(41, 98, 255, 0.2);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+        }
+        
+        .stat-value {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 8px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        /* INSTRUCTIONS */
+        .instructions {
+            background: rgba(255, 171, 0, 0.08);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 30px;
+            border-left: 5px solid var(--warning);
+        }
+        
+        .instructions h3 {
+            color: var(--warning);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3rem;
+        }
+        
+        .instructions ul {
+            padding-left: 24px;
+            color: var(--light);
+            line-height: 1.7;
+        }
+        
+        .instructions li {
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+        
+        /* FOOTER */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--gray);
+            padding: 24px;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .disclaimer {
+            background: rgba(255, 23, 68, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 23, 68, 0.3);
+            color: #ff8a80;
+            font-size: 0.9rem;
+        }
+        
+        /* SEARCH */
+        .search-container {
+            margin: 25px 0;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 16px 24px;
+            background: rgba(26, 35, 126, 0.9);
+            border: 1px solid rgba(41, 98, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 1.05rem;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(41, 98, 255, 0.2);
+        }
+        
+        .search-btn {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--secondary), #2979ff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            min-width: 120px;
+            justify-content: center;
+        }
+        
+        .search-btn:hover {
+            background: linear-gradient(135deg, #2979ff, #1565c0);
+            transform: translateY(-2px);
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 992px) {
+            .server-grid {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .server-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .protocol-tabs {
+                flex-direction: column;
+            }
+            
+            .protocol-tab {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .search-btn {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .server-card {
+                padding: 15px;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .detail-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .detail-value {
+                width: 100%;
+            }
+            
+            .server-footer {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+        
+        .port-info {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 5px;
+            padding: 5px 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            border-left: 3px solid var(--secondary);
+        }
+        
+        .udp-type-badge {
+            background: rgba(255, 171, 0, 0.2);
+            color: var(--warning);
+            border: 1px solid rgba(255, 171, 0, 0.4);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-server"></i> Free SSH Servers</h1>
+            <p class="subtitle">SSH TCP (Port 80/443) & SSH UDP (Port Beragam) - Untuk Edukasi Jaringan</p>
+        </header>
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value">40</div>
+                <div class="stat-label">Total Server</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">TCP 80/443</div>
+                <div class="stat-label">Port SSH Standard</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">UDP 2 Jenis</div>
+                <div class="stat-label">1-6900 & 1-65535</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Gratis Edukasi</div>
+            </div>
+        </div>
+        
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Cari server berdasarkan nama, host, username, atau lokasi...">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i> Cari Server
+                </button>
+            </div>
+        </div>
+        
+        <!-- PROTOCOL TABS -->
+        <div class="tabs-container">
+            <div class="protocol-tabs">
+                <button class="protocol-tab active" data-protocol="tcp">
+                    <i class="fas fa-exchange-alt"></i> SSH TCP (Port 80/443)
+                </button>
+                <button class="protocol-tab" data-protocol="udp">
+                    <i class="fas fa-bolt"></i> SSH UDP (Port Beragam)
+                </button>
+            </div>
+            
+            <!-- TCP Location Tabs -->
+            <div id="tcp-locations" class="location-tabs">
+                <button class="location-tab active" data-location="tcp-sg">
+                    <i class="fas fa-globe-asia"></i> Singapore (10)
+                </button>
+                <button class="location-tab" data-location="tcp-id">
+                    <i class="fas fa-map-marker-alt"></i> Indonesia (10)
+                </button>
+            </div>
+            
+            <!-- UDP Location Tabs -->
+            <div id="udp-locations" class="location-tabs" style="display: none;">
+                <button class="location-tab active" data-location="udp-sg">
+                    <i class="fas fa-globe-asia"></i> Singapore UDP (10)
+                </button>
+                <button class="location-tab" data-location="udp-id">
+                    <i class="fas fa-map-marker-alt"></i> Indonesia UDP (10)
+                </button>
+            </div>
+        </div>
+        
+        <!-- SSH TCP SINGAPORE (PORT 80/443) -->
+        <div id="tcp-sg" class="tab-content active">
+            <div class="server-grid" id="tcp-sg-list">
+                <!-- SSH TCP SG servers akan diisi oleh JavaScript -->
+            </div>
+        </div>
+        
+        <!-- SSH TCP INDONESIA (PORT 80/443) -->
+        <div id="tcp-id" class="tab-content">
+            <div class="server-grid" id="tcp-id-list">
+                <!-- SSH TCP ID servers akan diisi oleh JavaScript -->
+            </div>
+        </div>
+        
+        <!-- SSH UDP SINGAPORE (PORT BERAGAM) -->
+        <div id="udp-sg" class="tab-content">
+            <div class="server-grid" id="udp-sg-list">
+                <!-- SSH UDP SG servers akan diisi oleh JavaScript -->
+            </div>
+        </div>
+        
+        <!-- SSH UDP INDONESIA (PORT BERAGAM) -->
+        <div id="udp-id" class="tab-content">
+            <div class="server-grid" id="udp-id-list">
+                <!-- SSH UDP ID servers akan diisi oleh JavaScript -->
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Petunjuk Penggunaan SSH</h3>
+            <ul>
+                <li><strong>SSH TCP (Port 80/443):</strong> Port standar HTTP/HTTPS, biasanya tidak diblokir firewall</li>
+                <li><strong>SSH UDP (Port Beragam):</strong> Hanya 2 jenis port: 1-6900 dan 1-65535</li>
+                <li><strong>Catatan UDP:</strong> Untuk SSH UDP, port yang ditampilkan adalah RANGE port. Anda bisa mencoba port apapun dalam range tersebut</li>
+                <li>Gunakan client SSH seperti: Putty, Termius, JuiceSSH, atau OpenSSH</li>
+                <li>Untuk UDP, pastikan client SSH mendukung koneksi UDP</li>
+                <li>Klik "Copy Details" untuk menyalin semua informasi server sekaligus</li>
+                <li>Server ini 100% gratis untuk tujuan edukasi jaringan dan keamanan</li>
+            </ul>
+        </div>
+        
+        <footer>
+            <p><i class="fas fa-code"></i> Dikembangkan oleh Komunitas SSH Indonesia - Untuk Edukasi Jaringan</p>
+            <div class="disclaimer">
+                <i class="fas fa-exclamation-triangle"></i> 
+                <strong>PERINGATAN:</strong> Server ini hanya untuk pembelajaran jaringan. Penggunaan untuk aktivitas ilegal sepenuhnya tanggung jawab pengguna.
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Fungsi generate port TCP (hanya 80 atau 443)
+        function generateTcpPort() {
+            return Math.random() > 0.5 ? '80' : '443';
+        }
+
+        // Data untuk SSH TCP Singapore Servers (Port 80/443)
+        const tcpSGServers = Array.from({length: 10}, (_, i) => ({
+            id: i + 1,
+            name: `TCP-SG-${String(i+1).padStart(2, '0')}`,
+            host: `sg-tcp${i+1}.freessh.net`,
+            username: `tcp_sg_user${i+1}`,
+            password: `TCPsg${2024+i}!Pass`,
+            port: generateTcpPort(),
+            location: 'Singapore',
+            expires: `${Math.floor(Math.random() * 25) + 5} hari`,
+            status: Math.random() > 0.2 ? 'online' : 'offline',
+            note: `Port TCP: ${i % 2 === 0 ? '80 (HTTP)' : '443 (HTTPS)'}`
+        }));
+
+        // Data untuk SSH TCP Indonesia Servers (Port 80/443)
+        const tcpIDServers = Array.from({length: 10}, (_, i) => ({
+            id: i + 1,
+            name: `TCP-ID-${String(i+1).padStart(2, '0')}`,
+            host: `id-tcp${i+1}.freessh.net`,
+            username: `tcp_id_user${i+1}`,
+            password: `TCPid${2024+i}!Pass`,
+            port: generateTcpPort(),
+            location: ['Jakarta', 'Surabaya', 'Bandung', 'Bali', 'Medan', 'Makassar', 'Yogyakarta', 'Semarang', 'Palembang', 'Batam'][i],
+            expires: `${Math.floor(Math.random() * 25) + 5} hari`,
+            status: Math.random() > 0.2 ? 'online' : 'offline',
+            note: `Port TCP: ${i % 2 === 0 ? '80 (HTTP)' : '443 (HTTPS)'}`
+        }));
+
+        // Data untuk SSH UDP Singapore Servers (Port Range)
+        const udpSGServers = Array.from({length: 10}, (_, i) => {
+            // 5 server pertama: range 1-6900, 5 server terakhir: range 1-65535
+            const portRange = i < 5 ? '1-6900' : '1-65535';
+            
+            return {
+                id: i + 1,
+                name: `UDP-SG-${String(i+1).padStart(2, '0')}`,
+                host: `sg-udp${i+1}.freessh.net`,
+                username: `udp_sg_user${i+1}`,
+                password: `UDPsg${2024+i}!Pass`,
+                port: portRange, // Ini adalah STRING range, bukan angka
+                location: 'Singapore',
+                expires: `${Math.floor(Math.random() * 25) + 5} hari`,
+                status: Math.random() > 0.2 ? 'online' : 'offline',
+                note: `Range Port UDP: ${portRange}`,
+                portRange: portRange // Menyimpan range juga di property lain
+            };
+        });
+
+        // Data untuk SSH UDP Indonesia Servers (Port Range)
+        const udpIDServers = Array.from({length: 10}, (_, i) => {
+            // 5 server pertama: range 1-6900, 5 server terakhir: range 1-65535
+            const portRange = i < 5 ? '1-6900' : '1-65535';
+            
+            return {
+                id: i + 1,
+                name: `UDP-ID-${String(i+1).padStart(2, '0')}`,
+                host: `id-udp${i+1}.freessh.net`,
+                username: `udp_id_user${i+1}`,
+                password: `UDPid${2024+i}!Pass`,
+                port: portRange, // Ini adalah STRING range, bukan angka
+                location: ['Jakarta', 'Surabaya', 'Bandung', 'Bali', 'Medan', 'Makassar', 'Yogyakarta', 'Semarang', 'Palembang', 'Batam'][i],
+                expires: `${Math.floor(Math.random() * 25) + 5} hari`,
+                status: Math.random() > 0.2 ? 'online' : 'offline',
+                note: `Range Port UDP: ${portRange}`,
+                portRange: portRange // Menyimpan range juga di property lain
+            };
+        });
+
+        // Fungsi untuk membuat server card
+        function createServerCard(server, type) {
+            const card = document.createElement('div');
+            card.className = 'server-card';
+            
+            const isTCP = type.includes('tcp');
+            const isUDP = type.includes('udp');
+            const isSG = type.includes('sg');
+            const isID = type.includes('id');
+            
+            const statusClass = server.status === 'online' ? 'status-online' : 'status-offline';
+            const statusText = server.status === 'online' ? 'Online' : 'Offline';
+            
+            let badges = '';
+            if (isTCP) badges += '<span class="badge badge-tcp">TCP Port ' + server.port + '</span>';
+            if (isUDP) badges += '<span class="badge badge-udp">UDP Range</span>';
+            if (isSG) badges += '<span class="badge badge-sg">Singapore</span>';
+            if (isID) badges += '<span class="badge badge-id">Indonesia</span>';
+            
+            // Untuk UDP, tambahkan badge untuk menunjukkan jenis range
+            if (isUDP) {
+                const rangeType = server.port === '1-6900' ? 'Range Rendah' : 'Range Penuh';
+                const badgeClass = server.port === '1-6900' ? 'badge-tcp' : 'badge-udp';
+                badges += `<span class="badge ${badgeClass}">${rangeType}</span>`;
+            }
+            
+            card.innerHTML = `
+                <div class="server-header">
+                    <div class="server-title">${server.name}</div>
+                    <div class="server-badge">${badges}</div>
+                </div>
+                
+                <div class="server-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Host:</span>
+                        <span class="detail-value">${server.host}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Username:</span>
+                        <span class="detail-value">${server.username}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Password:</span>
+                        <span class="detail-value">${server.password}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">${isUDP ? 'Range Port:' : 'Port:'}</span>
+                        <span class="detail-value">${server.port}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Lokasi:</span>
+                        <span class="detail-value">${server.location}</span>
+                    </div>
+                    ${isUDP ? `
+                    <div class="detail-row">
+                        <span class="detail-label">Catatan:</span>
+                        <span class="detail-value" style="font-size: 0.9rem; color: #ffab00;">
+                            <i class="fas fa-info-circle"></i> Port adalah RANGE. Coba port apapun dalam range ${server.port}
+                        </span>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div class="server-footer">
+                    <div class="server-status">
+                        <span class="status-dot ${statusClass}"></span>
+                        <span class="status-text">${statusText}</span>
+                    </div>
+                    <div class="server-expiry">Kadaluarsa: ${server.expires}</div>
+                </div>
+                
+                <button class="copy-btn" data-server-id="${server.id}" data-type="${type}">
+                    <i class="fas fa-copy"></i> Copy Details
+                </button>
+            `;
+            
+            return card;
+        }
+
+        // Fungsi untuk memuat semua server
+        function loadAllServers() {
+            loadServersToContainer('tcp-sg-list', tcpSGServers, 'tcp-sg');
+            loadServersToContainer('tcp-id-list', tcpIDServers, 'tcp-id');
+            loadServersToContainer('udp-sg-list', udpSGServers, 'udp-sg');
+            loadServersToContainer('udp-id-list', udpIDServers, 'udp-id');
+        }
+
+        function loadServersToContainer(containerId, servers, type) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            servers.forEach(server => {
+                container.appendChild(createServerCard(server, type));
+            });
+        }
+
+        // Fungsi untuk setup tabs
+        function setupTabs() {
+            // Protocol tabs
+            const protocolTabs = document.querySelectorAll('.protocol-tab');
+            const locationTabsContainers = {
+                'tcp': document.getElementById('tcp-locations'),
+                'udp': document.getElementById('udp-locations')
+            };
+            
+            protocolTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const protocol = tab.getAttribute('data-protocol');
+                    
+                    // Update active protocol tab
+                    protocolTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show/hide location tabs
+                    Object.keys(locationTabsContainers).forEach(key => {
+                        if (key === protocol) {
+                            locationTabsContainers[key].style.display = 'flex';
+                        } else {
+                            locationTabsContainers[key].style.display = 'none';
+                        }
+                    });
+                    
+                    // Activate first location tab
+                    const firstLocationTab = locationTabsContainers[protocol].querySelector('.location-tab');
+                    if (firstLocationTab) {
+                        activateLocationTab(firstLocationTab.getAttribute('data-location'));
+                    }
+                });
+            });
+            
+            // Location tabs
+            const locationTabs = document.querySelectorAll('.location-tab');
+            locationTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const location = tab.getAttribute('data-location');
+                    activateLocationTab(location);
+                });
+            });
+        }
+
+        function activateLocationTab(location) {
+            // Update active location tab
+            document.querySelectorAll('.location-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelector(`[data-location="${location}"]`).classList.add('active');
+            
+            // Show corresponding content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.getElementById(location).classList.add('active');
+        }
+
+        // Fungsi untuk copy button
+        function setupCopyButtons() {
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('copy-btn') || e.target.closest('.copy-btn')) {
+                    const button = e.target.classList.contains('copy-btn') ? e.target : e.target.closest('.copy-btn');
+                    const serverId = parseInt(button.getAttribute('data-server-id'));
+                    const type = button.getAttribute('data-type');
+                    
+                    let server;
+                    
+                    switch(type) {
+                        case 'tcp-sg':
+                            server = tcpSGServers.find(s => s.id === serverId);
+                            break;
+                        case 'tcp-id':
+                            server = tcpIDServers.find(s => s.id === serverId);
+                            break;
+                        case 'udp-sg':
+                            server = udpSGServers.find(s => s.id === serverId);
+                            break;
+                        case 'udp-id':
+                            server = udpIDServers.find(s => s.id === serverId);
+                            break;
+                    }
+                    
+                    if (server) {
+                        const isUDP = type.includes('udp');
+                        const protocol = isUDP ? 'UDP' : 'TCP';
+                        const portInfo = isUDP ? `Range Port: ${server.port}` : `Port: ${server.port} ${server.port === '80' ? '(HTTP)' : '(HTTPS)'}`;
+                        
+                        const serverDetails = 
+`╔════════════════════════════════════════╗
+║         SSH SERVER DETAILS            ║
+╠════════════════════════════════════════╣
+║ Server    : ${server.name}
+║ Host      : ${server.host}
+║ Username  : ${server.username}
+║ Password  : ${server.password}
+║ ${isUDP ? 'Range Port' : 'Port'}  : ${server.port}
+║ Protocol  : ${protocol}
+║ ${isUDP ? 'Catatan' : 'Port Type'}: ${isUDP ? `Port adalah RANGE, coba port apapun dalam range ${server.port}` : (server.port === '80' ? '80 (HTTP)' : '443 (HTTPS)')}
+║ Location  : ${server.location}
+║ Expires   : ${server.expires}
+║ Status    : ${server.status}
+╚════════════════════════════════════════╝`;
+                        
+                        navigator.clipboard.writeText(serverDetails)
+                            .then(() => {
+                                const originalText = button.innerHTML;
+                                button.innerHTML = '<i class="fas fa-check"></i> Berhasil Disalin!';
+                                button.classList.add('success');
+                                
+                                setTimeout(() => {
+                                    button.innerHTML = originalText;
+                                    button.classList.remove('success');
+                                }, 2000);
+                            })
+                            .catch(err => {
+                                console.error('Failed to copy: ', err);
+                                alert('Gagal menyalin ke clipboard. Silakan salin manual.');
+                            });
+                    }
+                }
+            });
+        }
+
+        // Fungsi untuk search
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            
+            function performSearch() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                
+                if (!searchTerm) {
+                    loadAllServers();
+                    return;
+                }
+                
+                // Gabungkan semua server
+                const allServers = [
+                    ...tcpSGServers.map(s => ({...s, type: 'tcp-sg'})),
+                    ...tcpIDServers.map(s => ({...s, type: 'tcp-id'})),
+                    ...udpSGServers.map(s => ({...s, type: 'udp-sg'})),
+                    ...udpIDServers.map(s => ({...s, type: 'udp-id'}))
+                ];
+                
+                // Filter server
+                const filteredServers = allServers.filter(server => 
+                    server.name.toLowerCase().includes(searchTerm) ||
+                    server.host.toLowerCase().includes(searchTerm) ||
+                    server.location.toLowerCase().includes(searchTerm) ||
+                    server.username.toLowerCase().includes(searchTerm) ||
+                    server.port.toString().includes(searchTerm) ||
+                    (server.note && server.note.toLowerCase().includes(searchTerm))
+                );
+                
+                // Kosongkan semua container
+                ['tcp-sg-list', 'tcp-id-list', 'udp-sg-list', 'udp-id-list'].forEach(id => {
+                    document.getElementById(id).innerHTML = '';
+                });
+                
+                // Tampilkan hasil pencarian
+                if (filteredServers.length === 0) {
+                    const activeContainer = document.querySelector('.tab-content.active').id + '-list';
+                    document.getElementById(activeContainer).innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #90a4ae;">
+                            <i class="fas fa-search" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                            <h3 style="font-size: 1.5rem; margin-bottom: 10px;">Server tidak ditemukan</h3>
+                            <p style="font-size: 1rem;">Coba gunakan kata kunci lain atau periksa penulisan</p>
+                        </div>
+                    `;
+                } else {
+                    // Kelompokkan berdasarkan type
+                    const grouped = {};
+                    filteredServers.forEach(server => {
+                        if (!grouped[server.type]) grouped[server.type] = [];
+                        grouped[server.type].push(server);
+                    });
+                    
+                    // Tampilkan di container masing-masing
+                    Object.keys(grouped).forEach(type => {
+                        const containerId = `${type}-list`;
+                        const container = document.getElementById(containerId);
+                        if (container) {
+                            grouped[type].forEach(server => {
+                                container.appendChild(createServerCard(server, type));
+                            });
+                        }
+                    });
+                }
+            }
+            
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // Clear search when changing tabs
+            document.querySelectorAll('.protocol-tab, .location-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    searchInput.value = '';
+                    loadAllServers();
+                });
+            });
+        }
+
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllServers();
+            setupTabs();
+            setupCopyButtons();
+            setupSearch();
+            
+            // Simulasi perubahan status acak (hanya untuk demo)
+            setInterval(() => {
+                const allServers = [...tcpSGServers, ...tcpIDServers, ...udpSGServers, ...udpIDServers];
+                const randomIndex = Math.floor(Math.random() * allServers.length);
+                
+                if (Math.random() > 0.85 && allServers[randomIndex].status === 'online') {
+                    allServers[randomIndex].status = 'offline';
+                    
+                    // Reload server yang aktif
+                    const activeTab = document.querySelector('.tab-content.active').id;
+                    switch(activeTab) {
+                        case 'tcp-sg':
+                            loadServersToContainer('tcp-sg-list', tcpSGServers, 'tcp-sg');
+                            break;
+                        case 'tcp-id':
+                            loadServersToContainer('tcp-id-list', tcpIDServers, 'tcp-id');
+                            break;
+                        case 'udp-sg':
+                            loadServersToContainer('udp-sg-list', udpSGServers, 'udp-sg');
+                            break;
+                        case 'udp-id':
+                            loadServersToContainer('udp-id-list', udpIDServers, 'udp-id');
+                            break;
+                    }
+                }
+            }, 20000);
+        });
+    </script>
+</body>
+</html>
